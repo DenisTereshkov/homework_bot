@@ -1,10 +1,10 @@
-import time
 import logging
 import os
 import sys
-import requests
+import time
 from http import HTTPStatus
 
+import requests
 from dotenv import load_dotenv
 from telebot import TeleBot
 from telebot.apihelper import ApiException
@@ -77,17 +77,17 @@ def get_api_answer(timestamp):
     logger = logging.getLogger(__name__)
     payload = {'from_date': timestamp}
     api_data = {
-        'endpoint': ENDPOINT,
+        'url': ENDPOINT,
         'params': payload,
         'headers': HEADERS,
     }
     logger.debug(msg=(
-        'Делаем запрос к API. Endpoint: {endpoint}, '.format(**api_data),
-        'Params: {params}, Headers: {headers}.'.format(**api_data)
-    ))
+        'Делаем запрос к API. Endpoint: {url}, '
+        'Params: {params}, Headers: {headers}.'
+    ).format(**api_data))
     try:
         response = requests.get(
-            url=api_data['endpoint'],
+            api_data['url'],
             params=api_data['params'],
             headers=api_data['headers']
         )
@@ -153,11 +153,16 @@ def main():
                 homework_statuse = parse_status(homework[0])
                 sending_message = send_message(bot, homework_statuse)
                 if sending_message:
-                    timestamp = response.get('current_date')
+                    if response.get('current_date', None):
+                        timestamp = response.get('current_date')
+                    else:
+                        raise exeptions.EmptyCurrentDateException(
+                            current_error_message
+                        )
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logger.error(message, exc_info=True)
-            if (message != current_error_message):
+            if message != current_error_message:
                 send_message(bot, message)
                 current_error_message = message
         finally:

@@ -1,6 +1,3 @@
-import requests
-
-
 class TokensException(Exception):
     """Ошибка токена."""
 
@@ -17,5 +14,9 @@ class ParseStatusException(Exception):
     """Ошибка в статусе домашней работы."""
 
 
-class EndpointException(requests.RequestException):
+class EndpointException(Exception):
     """Ошибка доступа в эндпоинт."""
+
+
+class EmptyCurrentDateException(Exception):
+    """Ошибка пустой переменной 'current date'."""
